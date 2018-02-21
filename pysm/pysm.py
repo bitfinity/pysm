@@ -29,6 +29,7 @@ import collections
 from collections import deque
 import logging
 import sys
+from typing import List, Callable
 
 
 logger = logging.getLogger(__name__)
@@ -452,7 +453,7 @@ class StateMachine(State):
 
     def add_transition(
             self, from_state, to_state, events, input=None, action=None,
-            condition=None, before=None, after=None):
+            actions=None, condition=None, before=None, after=None):
         '''Add a transition to a state machine.
 
         All callbacks take two arguments - `state` and `event`. See parameters
@@ -486,6 +487,8 @@ class StateMachine(State):
                 - event: Event that triggered the transition
 
         :type action: |Callable|
+        :param actions: List of callbacks
+        :type actions: List[Callable]
         :param condition: Condition callback - if returns `True` transition may
             be initiated.
 
@@ -521,6 +524,8 @@ class StateMachine(State):
             input = [None]
         if action is None:
             action = self._nop
+        if actions is None:
+            actions = [self._nop]
         if before is None:
             before = self._nop
         if after is None:
@@ -538,6 +543,7 @@ class StateMachine(State):
                     'from_state': from_state,
                     'to_state': to_state,
                     'action': action,
+                    'actions': actions,
                     'condition': condition,
                     'before': before,
                     'after': after,
@@ -617,6 +623,8 @@ class StateMachine(State):
         transition['before'](leaf_state_before, event)
         top_state = self._exit_states(event, from_state, to_state)
         transition['action'](leaf_state_before, event)
+        for action in transition['actions']:
+            action(leaf_state_before, event)
         self._enter_states(event, top_state, to_state)
         transition['after'](self.leaf_state, event)
 

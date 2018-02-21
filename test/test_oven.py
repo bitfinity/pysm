@@ -5,14 +5,18 @@ from pysm import StateMachine, State, Event
 
 # It's possible to encapsulate all state related behaviour in a state class.
 class HeatingState(StateMachine):
+
     def on_enter(self, state, event):
         oven = event.cargo['source_event'].cargo['oven']
         if not oven.timer.is_alive():
             oven.start_timer()
         print('Heating on')
+        print ("Heating state: {}".format(self.state.name))
 
     def on_exit(self, state, event):
+        print (state.name)
         print('Heating off')
+        print ("Heating state: {}".format(self.state.name))
 
     def register_handlers(self):
         self.handlers = {

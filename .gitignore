@@ -1,8 +1,12 @@
 .coverage
 docs/_build/
-*.pyc
 *.pyo
 .cache
 /dist/
 /*.egg-info
 .eggs
+.idea/
+.pytest_cache/
+build/
+venv/
+
